@@ -139,28 +139,6 @@ void OLED_PrintPicture(const unsigned char *ptr_pic)
 }
 
 /**
- * OLED - 显示图片 - 反转 - 满屏(128*64)
- * @param ptr_pic 图片数组
- * @author WBN
- */
-void OLED_PrintPictureReverse(const unsigned char *ptr_pic)
-{
-    unsigned char data;
-    for(int page=0; page<(64/8); page++)        //page loop
-    {
-        OLED_SetPage(page);
-        OLED_SetColumn(0);
-
-        for(int column=0; column<128; column++)	//column loop
-        {
-            data=*ptr_pic++;
-            data=~data;
-            OLED_SendData(data);
-        }
-    }
-}
-
-/**
  * OLED - 设置光标位置
  * @param x
  * @param y
