@@ -478,10 +478,13 @@ void LCD_PrintStr(uint16_t x, uint16_t y, const uint8_t *p, uint16_t color)
  */
 void LCD_PrintPicture(uint16_t x1, uint16_t y1, uint16_t len, uint8_t* img)
 {
-    LCD_SetAddress(x1, y1, len-1, len-1);
+    uint16_t x2 = x1+len-1;
+    uint16_t y2 = y1+len-1;
 
-    int size = (len-1-x1+1) * (len-1-y1+1);   //计算图像总像素面积
-    for (int i = 0; i < size; i++)
+    LCD_SetAddress(x1, y1, x2, y2);
+
+    uint32_t size = (x2-x1+1) * (y2-y1+1);   //计算图像总像素面积
+    for (uint32_t i = 0; i < size; i++)
     {
         LCD_WriteData8(img[i*2+1]);
         LCD_WriteData8(img[i*2]);
