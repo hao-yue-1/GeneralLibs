@@ -1,5 +1,5 @@
-#ifndef _LCD_H
-#define _LCD_H
+#ifndef _LCD_H_
+#define _LCD_H_
 
 #include <stdlib.h>
 #include "gpio.h"
@@ -32,31 +32,30 @@
 #define LCD_SDA_Clr() HAL_GPIO_WritePin(SPI1_MOSI_GPIO_Port,SPI1_MOSI_Pin,GPIO_PIN_RESET)
 #define LCD_SDA_Set() HAL_GPIO_WritePin(SPI1_MOSI_GPIO_Port,SPI1_MOSI_Pin,GPIO_PIN_SET)
 /* RES */
-#define LCD_RST_Clr() HAL_GPIO_WritePin(SPI1_RES_GPIO_Port,SPI1_RES_Pin,GPIO_PIN_RESET)
-#define LCD_RST_Set() HAL_GPIO_WritePin(SPI1_RES_GPIO_Port,SPI1_RES_Pin,GPIO_PIN_SET)
+#define LCD_RST_Clr() HAL_GPIO_WritePin(LCD_RES_GPIO_Port,LCD_RES_Pin,GPIO_PIN_RESET)
+#define LCD_RST_Set() HAL_GPIO_WritePin(LCD_RES_GPIO_Port,LCD_RES_Pin,GPIO_PIN_SET)
 /* DC */
-#define LCD_DC_Clr() HAL_GPIO_WritePin(SPI1_DC_GPIO_Port,SPI1_DC_Pin,GPIO_PIN_RESET)
-#define LCD_DC_Set() HAL_GPIO_WritePin(SPI1_DC_GPIO_Port,SPI1_DC_Pin,GPIO_PIN_SET)
+#define LCD_DC_Clr() HAL_GPIO_WritePin(LCD_DC_GPIO_Port,LCD_DC_Pin,GPIO_PIN_RESET)
+#define LCD_DC_Set() HAL_GPIO_WritePin(LCD_DC_GPIO_Port,LCD_DC_Pin,GPIO_PIN_SET)
 /* CS */
-#define LCD_CS_Clr()  HAL_GPIO_WritePin(SPI1_CS_GPIO_Port,SPI1_CS_Pin,GPIO_PIN_RESET)
-#define LCD_CS_Set()  HAL_GPIO_WritePin(SPI1_CS_GPIO_Port,SPI1_CS_Pin,GPIO_PIN_SET)
+#define LCD_CS_Clr()  HAL_GPIO_WritePin(LCD_CS_GPIO_Port,LCD_CS_Pin,GPIO_PIN_RESET)
+#define LCD_CS_Set()  HAL_GPIO_WritePin(LCD_CS_GPIO_Port,LCD_CS_Pin,GPIO_PIN_SET)
 /* BLK */
-#define LCD_BLK_Clr()  HAL_GPIO_WritePin(SPI1_BLK_GPIO_Port,SPI1_BLK_Pin,GPIO_PIN_RESET)
-#define LCD_BLK_Set()  HAL_GPIO_WritePin(SPI1_BLK_GPIO_Port,SPI1_BLK_Pin,GPIO_PIN_SET)
+#define LCD_BLK_Clr()  HAL_GPIO_WritePin(LCD_BLK_GPIO_Port,LCD_BLK_Pin,GPIO_PIN_RESET)
+#define LCD_BLK_Set()  HAL_GPIO_WritePin(LCD_BLK_GPIO_Port,LCD_BLK_Pin,GPIO_PIN_SET)
 
-extern  uint16_t lcd_back_color;
+void lcd_init(uint16_t color_pen, uint16_t color_back);
+void lcd_clear(uint16_t color);
+void lcd_fill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
 
-void LCD_Init(void);
-void LCD_Clear(uint16_t color);
-void LCD_Fill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
-void LCD_DrawPoint(uint16_t x,uint16_t y,uint16_t color);
-void LCD_DrawPointBig(uint16_t x,uint16_t y,uint16_t colory);
-void LCD_DrawLine(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2,uint16_t color);
-void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,uint16_t color);
-void LCD_DrawCircle(uint16_t x0,uint16_t y0,uint8_t r,uint16_t color);
-void LCD_PrintChar(uint16_t x,uint16_t y,uint8_t num,uint8_t mode,uint16_t color);
-void LCD_PrintStr(uint16_t x,uint16_t y,const uint8_t *p,uint16_t color);
-void LCD_PrintPicture(uint16_t x1, uint16_t y1, uint16_t len, uint8_t* img);
+void lcd_draw_point(uint16_t x,uint16_t y,uint16_t color);
+void lcd_draw_line(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2,uint16_t color);
+void lcd_draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,uint16_t color);
+void lcd_draw_circle(uint16_t x0,uint16_t y0,uint8_t r,uint16_t color);
+
+void lcd_print_char(uint16_t x,uint16_t y,uint8_t num,uint8_t mode,uint16_t color);
+void lcd_print_string(uint16_t x,uint16_t y,const uint8_t *p,uint16_t color);
+void lcd_print_image(uint16_t x1, uint16_t y1, uint16_t len, const uint8_t* img);
 
 /* »­±ÊÑÕÉ« */
 #define LCD_WHITE         	 0xFFFF

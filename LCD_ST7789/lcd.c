@@ -6,7 +6,8 @@
 #include "lcd_font.h"
 #include "spi.h"
 
-uint16_t lcd_back_color;   //背景色
+uint16_t lcd_color_char = LCD_WHITE;    // 字符颜色
+uint16_t lcd_color_back = LCD_BLACK;    // 背景颜色
 
 /**
  * SPI - 发送数据
@@ -112,8 +113,10 @@ static void LCD_SetAddress(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 /**
  * LCD - 初始化
+ * @param color_pen 字符颜色
+ * @param color_back 背景颜色
  */
-void LCD_Init(void)
+void lcd_init(uint16_t color_pen, uint16_t color_back)
 {
 	LCD_RST_Clr();
 	HAL_Delay(20);
@@ -206,14 +209,15 @@ void LCD_Init(void)
 
     LCD_WriteCmd(0x29);
 
-    LCD_Clear(LCD_BLACK);   // 默认背景色为黑色
+    lcd_clear(color_back);
+    lcd_color_char = color_pen;
 }
 
 /**
- * LCD - 清屏 - 同时重置屏幕的背景色
+ * LCD - 清屏 - 同时重置屏幕的背景颜色
  * @param color
  */
-void LCD_Clear(uint16_t color)
+void lcd_clear(uint16_t color)
 {
 	LCD_SetAddress(0, 0, LCD_W-1, LCD_H-1);
 
@@ -225,7 +229,7 @@ void LCD_Clear(uint16_t color)
         }
     }
 
-    lcd_back_color = color; // 重置背景色
+    lcd_color_back = color; // 重置背景色
 }
 
 /**
@@ -236,7 +240,7 @@ void LCD_Clear(uint16_t color)
  * @param y2
  * @param color
  */
-void LCD_Fill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
+void lcd_fill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
 {
 	LCD_SetAddress(x1, y1, x2, y2); // 设置光标位置
 
@@ -250,26 +254,15 @@ void LCD_Fill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color
 }
 
 /**
- * LCD - 绘制一个点 - 1个像素
+ * LCD - 绘制一个点
  * @param x
  * @param y
  * @param color
  */
-void LCD_DrawPoint(uint16_t x, uint16_t y, uint16_t color)
+void lcd_draw_point(uint16_t x, uint16_t y, uint16_t color)
 {
     LCD_SetAddress(x, y, x, y); // 设置光标位置
     LCD_WriteData16(color);
-}
-
-/**
- * LCD - 绘制一个大的点 - 9个像素
- * @param x
- * @param y
- * @param color
- */
-void LCD_DrawPointBig(uint16_t x, uint16_t y, uint16_t color)
-{
-    LCD_Fill(x-1, y-1, x+1, y+1, color);
 }
 
 /**
@@ -280,7 +273,7 @@ void LCD_DrawPointBig(uint16_t x, uint16_t y, uint16_t color)
  * @param y2
  * @param color
  */
-void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
+void lcd_draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
 {
 	int xerr = 0, yerr = 0, delta_x, delta_y, distance;
 	int incx, incy, uRow, uCol;
@@ -325,7 +318,7 @@ void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t c
     }
 	for (uint16_t t = 0; t < distance + 1; t++)
 	{
-		LCD_DrawPoint(uRow, uCol, color);   // 画点
+		lcd_draw_point(uRow, uCol, color);   // 画点
 		xerr += delta_x;
 		yerr += delta_y;
 		if (xerr > distance)
@@ -349,12 +342,12 @@ void LCD_DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t c
  * @param y2
  * @param color
  */
-void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,uint16_t color)
+void lcd_draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,uint16_t color)
 {
-    LCD_DrawLine(x1, y1, x2,y1, color);
-    LCD_DrawLine(x1, y1,x1, y2, color);
-    LCD_DrawLine(x1, y2, x2, y2, color);
-    LCD_DrawLine(x2, y1, x2, y2, color);
+    lcd_draw_line(x1, y1, x2,y1, color);
+    lcd_draw_line(x1, y1,x1, y2, color);
+    lcd_draw_line(x1, y2, x2, y2, color);
+    lcd_draw_line(x2, y1, x2, y2, color);
 }
 
 /**
@@ -364,20 +357,20 @@ void LCD_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,uint16
  * @param r
  * @param color
  */
-void LCD_DrawCircle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
+void lcd_draw_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
 {
 	int a = 0, b = r;
 
 	while (a <= b)
 	{
-		LCD_DrawPoint(x0-b, y0-a, color);   // 3
-		LCD_DrawPoint(x0+b, y0-a, color);   // 0
-		LCD_DrawPoint(x0-a, y0+b, color);   // 1
-		LCD_DrawPoint(x0-a, y0-b, color);   // 2
-		LCD_DrawPoint(x0+b, y0+a, color);   // 4
-		LCD_DrawPoint(x0+a, y0-b, color);   // 5
-		LCD_DrawPoint(x0+a, y0+b, color);   // 6
-		LCD_DrawPoint(x0-b, y0+a, color);   // 7
+		lcd_draw_point(x0-b, y0-a, color);   // 3
+		lcd_draw_point(x0+b, y0-a, color);   // 0
+		lcd_draw_point(x0-a, y0+b, color);   // 1
+		lcd_draw_point(x0-a, y0-b, color);   // 2
+		lcd_draw_point(x0+b, y0+a, color);   // 4
+		lcd_draw_point(x0+a, y0-b, color);   // 5
+		lcd_draw_point(x0+a, y0+b, color);   // 6
+		lcd_draw_point(x0-b, y0+a, color);   // 7
 		a++;
 		if ((a*a+b*b) > (r*r))   // 判断要画的点是否过远
 		{
@@ -387,18 +380,18 @@ void LCD_DrawCircle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
 }
 
 /**
- * LCD - 显示一个字符
+ * LCD - 显示一个字符 - 16*8
  * @param x
  * @param y
  * @param num
  * @param mode 0:非叠加模式 - 1:叠加模式
  * @param color
  */
-void LCD_PrintChar(uint16_t x, uint16_t y, uint8_t num, uint8_t mode, uint16_t color)
+void lcd_print_char(uint16_t x, uint16_t y, uint8_t num, uint8_t mode, uint16_t color)
 {
     uint8_t temp;
 	uint16_t x0 = x;
-    if (x>LCD_W-16 || y>LCD_H-16)    // 设置窗口
+    if (x>LCD_W-8 || y>LCD_H-16)    // 设置窗口
     {
         return;
     }
@@ -417,7 +410,7 @@ void LCD_PrintChar(uint16_t x, uint16_t y, uint8_t num, uint8_t mode, uint16_t c
                 }
                 else
                 {
-                    LCD_WriteData16(lcd_back_color);
+                    LCD_WriteData16(lcd_color_back);
                 }
                 temp >>= 1;
                 x++;
@@ -435,7 +428,7 @@ void LCD_PrintChar(uint16_t x, uint16_t y, uint8_t num, uint8_t mode, uint16_t c
 		    {
 		        if (temp&0x01)
                 {
-                    LCD_DrawPoint(x+t, y+pos, color); // 画一个点
+                    lcd_draw_point(x+t, y+pos, color); // 画一个点
                 }
 		        temp >>= 1;
 		    }
@@ -450,11 +443,11 @@ void LCD_PrintChar(uint16_t x, uint16_t y, uint8_t num, uint8_t mode, uint16_t c
  * @param p 字符串
  * @param color
  */
-void LCD_PrintStr(uint16_t x, uint16_t y, const uint8_t *p, uint16_t color)
+void lcd_print_string(uint16_t x, uint16_t y, const uint8_t *p, uint16_t color)
 {
     while (*p != '\0')
     {
-        if (x > LCD_W-16)
+        if (x > LCD_W-8)
         {
             x = 0;
             y += 16;
@@ -462,9 +455,9 @@ void LCD_PrintStr(uint16_t x, uint16_t y, const uint8_t *p, uint16_t color)
         if (y > LCD_H-16)
         {
             y = x = 0;
-            LCD_Clear(LCD_RED);
+            lcd_clear(LCD_RED);
         }
-        LCD_PrintChar(x, y, *p,0, color);
+        lcd_print_char(x, y, *p,0, color);
         x += 8;
         p++;
     }
@@ -476,7 +469,7 @@ void LCD_PrintStr(uint16_t x, uint16_t y, const uint8_t *p, uint16_t color)
  * @param y1
  * @param len 正方形图片的边长
  */
-void LCD_PrintPicture(uint16_t x1, uint16_t y1, uint16_t len, uint8_t* img)
+void lcd_print_image(uint16_t x1, uint16_t y1, uint16_t len, const uint8_t* img)
 {
     uint16_t x2 = x1+len-1;
     uint16_t y2 = y1+len-1;
@@ -484,6 +477,7 @@ void LCD_PrintPicture(uint16_t x1, uint16_t y1, uint16_t len, uint8_t* img)
     LCD_SetAddress(x1, y1, x2, y2);
 
     uint32_t size = (x2-x1+1) * (y2-y1+1);   //计算图像总像素面积
+
     for (uint32_t i = 0; i < size; i++)
     {
         LCD_WriteData8(img[i*2+1]);
