@@ -25,6 +25,24 @@ static uint8_t lcd_y_p = 0;
 
 static uint8_t flag_point = 0;  // 在当前输出行尾部绘制一个标记 (0:当前为新行,标记未绘制 - 1:当前为旧行,标记已绘制)
 
+/**
+ * 更新当前行标记 - 删除旧行绘制新行
+ */
+static void lcd_update_now_line(void)
+{
+    if (lcd_y_p == 0)   // 当前为第一行 清除最底部一行标记
+        lcd_fill(224, lcd_y_arr[7], 239, lcd_y_arr[7]+16, lcd_color_back);
+    else                // 清除上一行标记
+        lcd_fill(224, lcd_y_arr[lcd_y_p]-16, 239, lcd_y_arr[lcd_y_p], lcd_color_back);
+
+    // 绘制当前行标记
+    lcd_fill(224+4, lcd_y_arr[lcd_y_p]+4, 224+11, lcd_y_arr[lcd_y_p]+11, lcd_color_char);
+}
+
+/**
+ * 清空一整行的字符
+ * @param y
+ */
 static void lcd_clear_line(uint8_t y)
 {
     lcd_fill(0, lcd_y_arr[y], LCD_W - 1, lcd_y_arr[y] + 16, lcd_color_back);
@@ -36,6 +54,13 @@ static void lcd_clear_line(uint8_t y)
  */
 static void lcd_putchar_update_point(char val)
 {
+    /* 更新当前行标记 */
+    if (flag_point == 0)
+    {
+        lcd_update_now_line();
+        flag_point = 1;
+    }
+
     lcd_print_char(lcd_x_arr[lcd_x_p], lcd_y_arr[lcd_y_p], val, 0, lcd_color_char);
     /* 左移准备下一个字符 */
     lcd_x_p++;
@@ -63,16 +88,10 @@ static void lcd_putchar_update_point(char val)
  */
 void lcd_printf(const char* format, ...)
 {
-    /* 绘制当前行行尾标记 */
+    /* 更新当前行标记 */
     if (flag_point == 0)
     {
-        if (lcd_y_p == 0)   // 当前为第一行 清除最底部一行标记
-            lcd_fill(224, lcd_y_arr[7], 239, lcd_y_arr[7]+16, lcd_color_back);
-        else                // 清除上一行标记
-            lcd_fill(224, lcd_y_arr[lcd_y_p]-16, 239, lcd_y_arr[lcd_y_p], lcd_color_back);
-
-        // 绘制当前行标记
-        lcd_fill(224+4, lcd_y_arr[lcd_y_p]+4, 224+11, lcd_y_arr[lcd_y_p]+11, lcd_color_char);
+        lcd_update_now_line();
         flag_point = 1;
     }
 
