@@ -9,8 +9,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-extern uint16_t lcd_color_char;     // 字符颜色
-extern uint16_t lcd_color_back;    // 背景颜色
+extern uint16_t lcd_color_char; // 字符颜色
+extern uint16_t lcd_color_back; // 背景颜色
 
 /* 默认字符大小为 8*16(w*h) 根据字符大小将屏幕划分为30*8的网格 在网格内绘制字符 */
 static uint8_t lcd_x_arr[30] = {0, 8, 16, 24, 32, 40, 48, 56, 64,
@@ -84,14 +84,6 @@ static void lcd_putchar_update_point(char val)
  */
 void lcd_printf(const char* format, ...)
 {
-    /* 更新当前行标记 */
-//    if (flag_point == 0)
-//    {
-//        lcd_clear_line(lcd_y_p);
-//        lcd_update_now_line();
-//        flag_point = 1;
-//    }
-
     va_list args;
     va_start(args, format);
 
@@ -189,4 +181,24 @@ void lcd_printf(const char* format, ...)
 void lcd_color_char_set(uint16_t color)
 {
     lcd_color_char = color;
+}
+
+/**
+ * 设置背景颜色
+ * @param color
+ */
+void lcd_color_back_set(uint16_t color)
+{
+    lcd_color_back = color;
+}
+
+/**
+ * 重置lcd_printf的输出显示
+ */
+void lcd_printf_reset(void)
+{
+    lcd_clear(lcd_color_back);
+    lcd_x_p = 0;
+    lcd_y_p = 0;
+    flag_point = 0;
 }
