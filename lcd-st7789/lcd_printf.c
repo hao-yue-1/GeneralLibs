@@ -57,6 +57,7 @@ static void lcd_putchar_update_point(char val)
     /* 更新当前行标记 */
     if (flag_point == 0)
     {
+        lcd_clear_line(lcd_y_p);
         lcd_update_now_line();
         flag_point = 1;
     }
@@ -69,15 +70,10 @@ static void lcd_putchar_update_point(char val)
     {
         lcd_x_p = 0;
         lcd_y_p++;
+        if (lcd_y_p > 7)
+            lcd_y_p = 0;
+
         flag_point = 0;
-        lcd_clear_line(lcd_y_p);
-    }
-    /* 页面底部 重新开始 */
-    if (lcd_y_p > 7)
-    {
-        lcd_y_p = 0;
-        flag_point = 0;
-        lcd_clear_line(lcd_y_p);
     }
 }
 
@@ -89,11 +85,12 @@ static void lcd_putchar_update_point(char val)
 void lcd_printf(const char* format, ...)
 {
     /* 更新当前行标记 */
-    if (flag_point == 0)
-    {
-        lcd_update_now_line();
-        flag_point = 1;
-    }
+//    if (flag_point == 0)
+//    {
+//        lcd_clear_line(lcd_y_p);
+//        lcd_update_now_line();
+//        flag_point = 1;
+//    }
 
     va_list args;
     va_start(args, format);
@@ -172,9 +169,8 @@ void lcd_printf(const char* format, ...)
         {
             lcd_y_p++;
             if (lcd_y_p > 7)
-            {
                 lcd_y_p = 0;
-            }
+
             flag_point = 0;
         }
         else
